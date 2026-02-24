@@ -59,6 +59,49 @@ kubectl get clusterservingruntimes
 ```
 If you see a list of runtimes (like `sklearn`, `pytorch`, `huggingface`), your installation is perfectly complete and ready to deploy `InferenceService` models!
 
+## 4. Deploy a Sample InferenceService
+
+Now that your cluster is KServe-enabled, let's deploy a standard test model. Because we installed KServe in **RawDeploymentMode**, you must ensure the `serving.kserve.io/deploymentMode: "RawDeployment"` annotation is present.
+
+### Create the model
+Save this YAML to `sklearn-iris.yaml` and run `kubectl apply -f sklearn-iris.yaml`.
+
+```yaml
+apiVersion: "serving.kserve.io/v1beta1"
+kind: "InferenceService"
+metadata:
+  name: "sklearn-iris"
+  annotations:
+    serving.kserve.io/deploymentMode: "RawDeployment"
+spec:
+  predictor:
+    sklearn:
+      storageUri: "gs://kfserving-examples/models/sklearn/1.0/model"
+```
+
+Wait for the model to retrieve its payload and report Ready:
+```sh
+kubectl wait --for=condition=Ready inferenceservice/sklearn-iris --timeout=120s
+```
+
+### Test Predictions
+Port-forward the predictor service to your local machine:
+```sh
+kubectl port-forward svc/sklearn-iris-predictor 8080:80 &
+```
+
+Send a test payload via `curl`:
+```sh
+curl -s -X POST -H "Content-Type: application/json" \
+  -d '{"instances": [[6.8, 2.8, 4.8, 1.4], [6.0, 3.4, 4.5, 1.6]]}' \
+  "http://localhost:8080/v1/models/sklearn-iris:predict"
+```
+
+**Expected Output:**
+```json
+{"predictions": [1, 1]}
+```
+
 ## Contributing
 // TODO(user): Add detailed information on how you would like others to contribute to this project
 
