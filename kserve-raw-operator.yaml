@@ -26,48 +26,49 @@ spec:
     singular: kserverawmode
   scope: Namespaced
   versions:
-  - name: v1alpha1
-    schema:
-      openAPIV3Schema:
-        description: KServeRawMode is the Schema for the kserverawmodes API
-        properties:
-          apiVersion:
-            description: |-
-              APIVersion defines the versioned schema of this representation of an object.
-              Servers should convert recognized schemas to the latest internal value, and
-              may reject unrecognized values.
-              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-            type: string
-          kind:
-            description: |-
-              Kind is a string value representing the REST resource this object represents.
-              Servers may infer this from the endpoint the client submits requests to.
-              Cannot be updated.
-              In CamelCase.
-              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-            type: string
-          metadata:
-            type: object
-          spec:
-            description: KServeRawModeSpec defines the desired state of KServeRawMode
-            properties:
-              foo:
-                description: Foo is an example field of KServeRawMode. Edit kserverawmode_types.go
-                  to remove/update
-                type: string
-            type: object
-          status:
-            description: KServeRawModeStatus defines the observed state of KServeRawMode
-            properties:
-              phase:
-                description: Phase indicates the current stage of installation
-                type: string
-            type: object
-        type: object
-    served: true
-    storage: true
-    subresources:
-      status: {}
+    - name: v1alpha1
+      schema:
+        openAPIV3Schema:
+          description: KServeRawMode is the Schema for the kserverawmodes API
+          properties:
+            apiVersion:
+              description: |-
+                APIVersion defines the versioned schema of this representation of an object.
+                Servers should convert recognized schemas to the latest internal value, and
+                may reject unrecognized values.
+                More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+              type: string
+            kind:
+              description: |-
+                Kind is a string value representing the REST resource this object represents.
+                Servers may infer this from the endpoint the client submits requests to.
+                Cannot be updated.
+                In CamelCase.
+                More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+              type: string
+            metadata:
+              type: object
+            spec:
+              description: KServeRawModeSpec defines the desired state of KServeRawMode
+              properties:
+                foo:
+                  description:
+                    Foo is an example field of KServeRawMode. Edit kserverawmode_types.go
+                    to remove/update
+                  type: string
+              type: object
+            status:
+              description: KServeRawModeStatus defines the observed state of KServeRawMode
+              properties:
+                phase:
+                  description: Phase indicates the current stage of installation
+                  type: string
+              type: object
+          type: object
+      served: true
+      storage: true
+      subresources:
+        status: {}
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -95,75 +96,75 @@ metadata:
   name: kserve-operator-deploy-leader-election-role
   namespace: kserve-operator-deploy-system
 rules:
-- apiGroups:
-  - ""
-  resources:
-  - configmaps
-  verbs:
-  - get
-  - list
-  - watch
-  - create
-  - update
-  - patch
-  - delete
-- apiGroups:
-  - coordination.k8s.io
-  resources:
-  - leases
-  verbs:
-  - get
-  - list
-  - watch
-  - create
-  - update
-  - patch
-  - delete
-- apiGroups:
-  - ""
-  resources:
-  - events
-  verbs:
-  - create
-  - patch
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - update
+      - patch
+      - delete
+  - apiGroups:
+      - coordination.k8s.io
+    resources:
+      - leases
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - update
+      - patch
+      - delete
+  - apiGroups:
+      - ""
+    resources:
+      - events
+    verbs:
+      - create
+      - patch
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: kserve-operator-deploy-manager-role
 rules:
-- apiGroups:
-  - '*'
-  resources:
-  - '*'
-  verbs:
-  - '*'
-- apiGroups:
-  - operator.akashdeo.com
-  resources:
-  - kserverawmodes
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - operator.akashdeo.com
-  resources:
-  - kserverawmodes/finalizers
-  verbs:
-  - update
-- apiGroups:
-  - operator.akashdeo.com
-  resources:
-  - kserverawmodes/status
-  verbs:
-  - get
-  - patch
-  - update
+  - apiGroups:
+      - "*"
+    resources:
+      - "*"
+    verbs:
+      - "*"
+  - apiGroups:
+      - operator.akashdeo.com
+    resources:
+      - kserverawmodes
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - operator.akashdeo.com
+    resources:
+      - kserverawmodes/finalizers
+    verbs:
+      - update
+  - apiGroups:
+      - operator.akashdeo.com
+    resources:
+      - kserverawmodes/status
+    verbs:
+      - get
+      - patch
+      - update
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -177,10 +178,10 @@ metadata:
     app.kubernetes.io/part-of: kserve-operator-deploy
   name: kserve-operator-deploy-metrics-reader
 rules:
-- nonResourceURLs:
-  - /metrics
-  verbs:
-  - get
+  - nonResourceURLs:
+      - /metrics
+    verbs:
+      - get
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -194,18 +195,18 @@ metadata:
     app.kubernetes.io/part-of: kserve-operator-deploy
   name: kserve-operator-deploy-proxy-role
 rules:
-- apiGroups:
-  - authentication.k8s.io
-  resources:
-  - tokenreviews
-  verbs:
-  - create
-- apiGroups:
-  - authorization.k8s.io
-  resources:
-  - subjectaccessreviews
-  verbs:
-  - create
+  - apiGroups:
+      - authentication.k8s.io
+    resources:
+      - tokenreviews
+    verbs:
+      - create
+  - apiGroups:
+      - authorization.k8s.io
+    resources:
+      - subjectaccessreviews
+    verbs:
+      - create
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
@@ -224,9 +225,9 @@ roleRef:
   kind: Role
   name: kserve-operator-deploy-leader-election-role
 subjects:
-- kind: ServiceAccount
-  name: kserve-operator-deploy-controller-manager
-  namespace: kserve-operator-deploy-system
+  - kind: ServiceAccount
+    name: kserve-operator-deploy-controller-manager
+    namespace: kserve-operator-deploy-system
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -244,9 +245,9 @@ roleRef:
   kind: ClusterRole
   name: kserve-operator-deploy-manager-role
 subjects:
-- kind: ServiceAccount
-  name: kserve-operator-deploy-controller-manager
-  namespace: kserve-operator-deploy-system
+  - kind: ServiceAccount
+    name: kserve-operator-deploy-controller-manager
+    namespace: kserve-operator-deploy-system
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -264,9 +265,9 @@ roleRef:
   kind: ClusterRole
   name: kserve-operator-deploy-proxy-role
 subjects:
-- kind: ServiceAccount
-  name: kserve-operator-deploy-controller-manager
-  namespace: kserve-operator-deploy-system
+  - kind: ServiceAccount
+    name: kserve-operator-deploy-controller-manager
+    namespace: kserve-operator-deploy-system
 ---
 apiVersion: v1
 kind: Service
@@ -283,10 +284,10 @@ metadata:
   namespace: kserve-operator-deploy-system
 spec:
   ports:
-  - name: https
-    port: 8443
-    protocol: TCP
-    targetPort: https
+    - name: https
+      port: 8443
+      protocol: TCP
+      targetPort: https
   selector:
     control-plane: controller-manager
 ---
@@ -316,61 +317,61 @@ spec:
         control-plane: controller-manager
     spec:
       containers:
-      - args:
-        - --secure-listen-address=0.0.0.0:8443
-        - --upstream=http://127.0.0.1:8080/
-        - --logtostderr=true
-        - --v=0
-        image: gcr.io/kubebuilder/kube-rbac-proxy:v0.14.1
-        name: kube-rbac-proxy
-        ports:
-        - containerPort: 8443
-          name: https
-          protocol: TCP
-        resources:
-          limits:
-            cpu: 500m
-            memory: 128Mi
-          requests:
-            cpu: 5m
-            memory: 64Mi
-        securityContext:
-          allowPrivilegeEscalation: false
-          capabilities:
-            drop:
-            - ALL
-      - args:
-        - --health-probe-bind-address=:8081
-        - --metrics-bind-address=127.0.0.1:8080
-        - --leader-elect
-        command:
-        - /manager
-        image: akashneha/kserve-raw-operator:v3
-        livenessProbe:
-          httpGet:
-            path: /healthz
-            port: 8081
-          initialDelaySeconds: 15
-          periodSeconds: 20
-        name: manager
-        readinessProbe:
-          httpGet:
-            path: /readyz
-            port: 8081
-          initialDelaySeconds: 5
-          periodSeconds: 10
-        resources:
-          limits:
-            cpu: 500m
-            memory: 128Mi
-          requests:
-            cpu: 10m
-            memory: 64Mi
-        securityContext:
-          allowPrivilegeEscalation: false
-          capabilities:
-            drop:
-            - ALL
+        - args:
+            - --secure-listen-address=0.0.0.0:8443
+            - --upstream=http://127.0.0.1:8080/
+            - --logtostderr=true
+            - --v=0
+          image: gcr.io/kubebuilder/kube-rbac-proxy:v0.14.1
+          name: kube-rbac-proxy
+          ports:
+            - containerPort: 8443
+              name: https
+              protocol: TCP
+          resources:
+            limits:
+              cpu: 500m
+              memory: 128Mi
+            requests:
+              cpu: 5m
+              memory: 64Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+        - args:
+            - --health-probe-bind-address=:8081
+            - --metrics-bind-address=127.0.0.1:8080
+            - --leader-elect
+          command:
+            - /manager
+          image: docker.io/akashneha/kserve-raw-operator:v4
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8081
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          name: manager
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 8081
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            limits:
+              cpu: 500m
+              memory: 128Mi
+            requests:
+              cpu: 10m
+              memory: 64Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
       securityContext:
         runAsNonRoot: true
       serviceAccountName: kserve-operator-deploy-controller-manager
