@@ -43,6 +43,22 @@ You can watch the operator orchestrate this in real-time by checking its logs:
 kubectl logs -n kserve-operator-deploy-system -l control-plane=controller-manager -c manager -f
 ```
 
+### 3. Verifying the Installation
+To confirm everything deployed successfully, run the following verification checks:
+
+**1. Check KServe Core Pods:**
+Ensure the controller and webhook pods are `Running` in the `kserve` namespace.
+```sh
+kubectl get pods -n kserve
+```
+
+**2. Check Serving Runtimes:**
+KServe Raw mode dynamically creates these runtimes once the webhooks are fully operational.
+```sh
+kubectl get clusterservingruntimes
+```
+If you see a list of runtimes (like `sklearn`, `pytorch`, `huggingface`), your installation is perfectly complete and ready to deploy `InferenceService` models!
+
 ## Contributing
 // TODO(user): Add detailed information on how you would like others to contribute to this project
 
