@@ -1,0 +1,759 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app.kubernetes.io/instance: kserve-controller-manager
+    app.kubernetes.io/managed-by: kserve-controller-manager
+    app.kubernetes.io/name: kserve-controller-manager
+  name: kserve-controller-manager
+  namespace: kserve
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app.kubernetes.io/instance: kserve-localmodel-controller-manager
+    app.kubernetes.io/managed-by: kserve-localmodel-controller-manager
+    app.kubernetes.io/name: kserve-localmodel-controller-manager
+  name: kserve-localmodel-controller-manager
+  namespace: kserve
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app.kubernetes.io/instance: kserve-localmodelnode-agent
+    app.kubernetes.io/managed-by: kserve-localmodelnode-agent
+    app.kubernetes.io/name: kserve-localmodelnode-agent
+  name: kserve-localmodelnode-agent
+  namespace: kserve
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app.kubernetes.io/component: controller
+    app.kubernetes.io/instance: llmisvc-controller-manager
+    app.kubernetes.io/name: llmisvc-controller-manager
+  name: llmisvc-controller-manager
+  namespace: kserve
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: kserve-leader-election-role
+  namespace: kserve
+rules:
+- apiGroups:
+  - coordination.k8s.io
+  resources:
+  - leases
+  verbs:
+  - create
+  - get
+  - list
+  - update
+- apiGroups:
+  - ''
+  resources:
+  - configmaps
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - ''
+  resources:
+  - configmaps/status
+  verbs:
+  - get
+  - update
+  - patch
+- apiGroups:
+  - ''
+  resources:
+  - events
+  verbs:
+  - create
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: llmisvc-leader-election-role
+  namespace: kserve
+rules:
+- apiGroups:
+  - coordination.k8s.io
+  resources:
+  - leases
+  verbs:
+  - create
+  - get
+  - list
+  - update
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: kserve-localmodel-manager-role
+rules:
+- apiGroups:
+  - ''
+  resources:
+  - configmaps
+  verbs:
+  - get
+- apiGroups:
+  - ''
+  resources:
+  - nodes
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ''
+  resources:
+  - nodes/status
+  verbs:
+  - get
+  - watch
+- apiGroups:
+  - ''
+  resources:
+  - persistentvolumeclaims
+  - persistentvolumes
+  verbs:
+  - create
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - serving.kserve.io
+  resources:
+  - inferenceservices
+  - localmodelnodegroups
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - serving.kserve.io
+  resources:
+  - localmodelcaches
+  - localmodelnodes
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - serving.kserve.io
+  resources:
+  - localmodelcaches/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - serving.kserve.io
+  resources:
+  - localmodelnodes/status
+  verbs:
+  - get
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: kserve-localmodelnode-agent-role
+rules:
+- apiGroups:
+  - ''
+  resources:
+  - configmaps
+  verbs:
+  - get
+- apiGroups:
+  - ''
+  resources:
+  - nodes
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ''
+  resources:
+  - nodes/status
+  verbs:
+  - get
+  - watch
+- apiGroups:
+  - batch
+  resources:
+  - jobs
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - batch
+  resources:
+  - jobs/status
+  verbs:
+  - get
+- apiGroups:
+  - serving.kserve.io
+  resources:
+  - clusterstoragecontainers
+  - localmodelnodegroups
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - serving.kserve.io
+  resources:
+  - localmodelnodes
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - serving.kserve.io
+  resources:
+  - localmodelnodes/status
+  verbs:
+  - get
+  - patch
+  - update
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: kserve-manager-role
+rules:
+- apiGroups:
+  - ''
+  resources:
+  - configmaps
+  verbs:
+  - create
+  - get
+  - update
+- apiGroups:
+  - ''
+  resources:
+  - events
+  - services
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ''
+  resources:
+  - namespaces
+  - pods
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ''
+  resources:
+  - secrets
+  - serviceaccounts
+  verbs:
+  - get
+- apiGroups:
+  - admissionregistration.k8s.io
+  resources:
+  - mutatingwebhookconfigurations
+  - validatingwebhookconfigurations
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - autoscaling
+  resources:
+  - horizontalpodautoscalers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - gateway.networking.k8s.io
+  resources:
+  - httproutes
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - keda.sh
+  resources:
+  - scaledobjects
+  - scaledobjects/finalizers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - keda.sh
+  resources:
+  - scaledobjects/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - networking.istio.io
+  resources:
+  - virtualservices
+  - virtualservices/finalizers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - networking.istio.io
+  resources:
+  - virtualservices/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - networking.k8s.io
+  resources:
+  - ingresses
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - opentelemetry.io
+  resources:
+  - opentelemetrycollectors
+  - opentelemetrycollectors/finalizers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - opentelemetry.io
+  resources:
+  - opentelemetrycollectors/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - serving.knative.dev
+  resources:
+  - services
+  - services/finalizers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - serving.knative.dev
+  resources:
+  - services/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - serving.kserve.io
+  resources:
+  - clusterservingruntimes
+  - clusterservingruntimes/finalizers
+  - clusterstoragecontainers
+  - inferencegraphs
+  - inferencegraphs/finalizers
+  - inferenceservices
+  - inferenceservices/finalizers
+  - servingruntimes
+  - servingruntimes/finalizers
+  - trainedmodels
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - serving.kserve.io
+  resources:
+  - clusterservingruntimes/status
+  - inferencegraphs/status
+  - inferenceservices/status
+  - servingruntimes/status
+  - trainedmodels/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - serving.kserve.io
+  resources:
+  - localmodelcaches
+  verbs:
+  - get
+  - list
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: kserve-proxy-role
+rules:
+- apiGroups:
+  - authentication.k8s.io
+  resources:
+  - tokenreviews
+  verbs:
+  - create
+- apiGroups:
+  - authorization.k8s.io
+  resources:
+  - subjectaccessreviews
+  verbs:
+  - create
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: llmisvc-manager-role
+rules:
+- nonResourceURLs:
+  - /metrics
+  verbs:
+  - get
+- apiGroups:
+  - ''
+  resources:
+  - configmaps
+  verbs:
+  - get
+- apiGroups:
+  - ''
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
+  - update
+- apiGroups:
+  - ''
+  resources:
+  - pods
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ''
+  resources:
+  - secrets
+  - serviceaccounts
+  - services
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - authentication.k8s.io
+  resources:
+  - subjectaccessreviews
+  - tokenreviews
+  verbs:
+  - create
+- apiGroups:
+  - authorization.k8s.io
+  resources:
+  - subjectaccessreviews
+  verbs:
+  - create
+- apiGroups:
+  - discovery.k8s.io
+  resources:
+  - endpointslices
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - gateway.networking.k8s.io
+  resources:
+  - gatewayclasses
+  - gateways
+  - httproutes
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - inference.networking.x-k8s.io
+  resources:
+  - inferencemodels
+  - inferencepools
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - leaderworkerset.x-k8s.io
+  resources:
+  - leaderworkersets
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - networking.k8s.io
+  resources:
+  - ingresses
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - clusterrolebindings
+  - rolebindings
+  - roles
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - serving.kserve.io
+  resources:
+  - llminferenceserviceconfigs
+  - llminferenceservices
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - serving.kserve.io
+  resources:
+  - llminferenceserviceconfigs/finalizers
+  - llminferenceservices/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - serving.kserve.io
+  resources:
+  - llminferenceservices/status
+  verbs:
+  - get
+  - patch
+  - update
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: kserve-leader-election-rolebinding
+  namespace: kserve
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: kserve-leader-election-role
+subjects:
+- kind: ServiceAccount
+  name: kserve-controller-manager
+  namespace: kserve
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: llmisvc-leader-election-rolebinding
+  namespace: kserve
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: llmisvc-leader-election-role
+subjects:
+- kind: ServiceAccount
+  name: llmisvc-controller-manager
+  namespace: kserve
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: kserve-localmodel-manager-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: kserve-localmodel-manager-role
+subjects:
+- kind: ServiceAccount
+  name: kserve-localmodel-controller-manager
+  namespace: kserve
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: kserve-localmodelnode-agent-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: kserve-localmodelnode-agent-role
+subjects:
+- kind: ServiceAccount
+  name: kserve-localmodelnode-agent
+  namespace: kserve
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: kserve-manager-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: kserve-manager-role
+subjects:
+- kind: ServiceAccount
+  name: kserve-controller-manager
+  namespace: kserve
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: kserve-proxy-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: kserve-proxy-role
+subjects:
+- kind: ServiceAccount
+  name: kserve-controller-manager
+  namespace: kserve
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: llmisvc-manager-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: llmisvc-manager-role
+subjects:
+- kind: ServiceAccount
+  name: llmisvc-controller-manager
+  namespace: kserve

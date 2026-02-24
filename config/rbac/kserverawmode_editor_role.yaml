@@ -1,0 +1,31 @@
+# permissions for end users to edit kserverawmodes.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: clusterrole
+    app.kubernetes.io/instance: kserverawmode-editor-role
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: kserve-operator-deploy
+    app.kubernetes.io/part-of: kserve-operator-deploy
+    app.kubernetes.io/managed-by: kustomize
+  name: kserverawmode-editor-role
+rules:
+- apiGroups:
+  - operator.akashdeo.com
+  resources:
+  - kserverawmodes
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - operator.akashdeo.com
+  resources:
+  - kserverawmodes/status
+  verbs:
+  - get

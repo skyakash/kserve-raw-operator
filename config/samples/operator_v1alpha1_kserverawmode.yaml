@@ -1,0 +1,12 @@
+apiVersion: operator.akashdeo.com/v1alpha1
+kind: KServeRawMode
+metadata:
+  labels:
+    app.kubernetes.io/name: kserverawmode
+    app.kubernetes.io/instance: kserverawmode-sample
+    app.kubernetes.io/part-of: kserve-operator-deploy
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: kserve-operator-deploy
+  name: kserverawmode-sample
+spec:
+  # TODO(user): Add fields here
